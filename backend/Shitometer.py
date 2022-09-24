@@ -17,61 +17,7 @@ from nltk.tokenize import word_tokenize
 #nltk.download('wordnet')
 #nltk.download('omw-1.4')
 
-def plan1():
-    df=pd.read_csv('./news_articles.csv')
-    #print(df.head(3))
-    df.text = df.title+df.text
-    df.drop(columns=["title"], axis = 1, inplace=True)
-    #print(df.isnull().sum())
-    stop_words = set(stopwords.words('english')) 
-
-    def LemmSentence(sentence):
-        lemma_words = []
-        wordnet_lemmatizer = WordNetLemmatizer()
-        word_tokens = word_tokenize(sentence) 
-        for word in word_tokens: 
-            if word not in stop_words: 
-                new_word = re.sub('[^a-zA-Z]', '',word)
-                new_word = new_word.lower()
-                new_word = wordnet_lemmatizer.lemmatize(new_word)
-                lemma_words.append(new_word)
-    #    print(type(" ".join(lemma_words)))
-        return " ".join(lemma_words)
-
-    df = df.dropna()
-    X = df["text"]
-    y = df["label"]
-    try:
-        X = [LemmSentence(i) for i in X]
-    except:
-        pass
-    X = pd.DataFrame(X)
-    y = pd.DataFrame(y)
-
-    #X = X.dropna()
-    print(X.isnull().sum())
-    print(y.isnull().sum())
-    x_train, x_test, y_train, y_test = train_test_split(X,y, test_size=0.5, random_state=7)
-    print(x_train.shape, x_test.shape, y_train.shape, y_test.shape)
-    # create the transform
-    vectorizer = TfidfVectorizer()
-
-    # transforming
-    tfidf_train = vectorizer.fit_transform(x_train.iloc[:,0])
-    tfidf_test = vectorizer.transform(x_test.iloc[:,0])
-    pac = PassiveAggressiveClassifier(random_state = 7,loss = 'squared_hinge',  max_iter = 50, C = 0.16)
-    pac.fit(tfidf_train, y_train.values.ravel())
-
-    #Predict on the test set and calculate accuracy
-    y_pred = pac.predict(tfidf_test)
-    score = accuracy_score(y_test, y_pred)
-
-    print(f'Accuracy: {round(score*100, 2)}%')
-    ax = sns.heatmap(confusion_matrix(y_test,y_pred), annot=True, fmt="d")
-    ax.set(xlabel='Prediction', ylabel='Actual')
-    plt.show()
-
-def plan2():
+def plan2(text):
     df=pd.read_csv('./fake.csv')
     df.drop(columns=['uuid','ord_in_thread','crawled','thread_title','replies_count','participants_count','likes','comments','shares'], axis=1, inplace=True)
     df.text = df.title+df.text
@@ -107,7 +53,8 @@ def plan2():
 
     x_train, x_test, y_train, y_test = train_test_split(X,y, test_size=0.5, random_state=2)
     print(x_train.shape, x_test.shape, y_train.shape, y_test.shape)
- 
+    testData = pd.DataFrame([LemmSentence(text)], columns =['text'])
+
  # The transformation
     vectorizer = TfidfVectorizer()
     tfidf_train = vectorizer.fit_transform(x_train.iloc[:,0])
@@ -117,175 +64,16 @@ def plan2():
     # Predicting
     y_pred = pac.predict(tfidf_test)
     score = accuracy_score(y_test, y_pred)
-    
+    ans = pac.predict(vectorizer.transform(testData.iloc[:,0]))[0]
+    if ans == 0:
+        return "Real"
+    else:
+        return "Fake"
     # Displaying
-    print(f'Accuracy: {round(score*100, 2)}%')
-    ax = sns.heatmap(confusion_matrix(y_test,y_pred), annot=True, fmt="d")
-    ax.set(xlabel='Prediction', ylabel='Actual')
-    plt.show()
-    
-def plan3():
-    df=pd.read_csv('./fake.csv')
-    testData = pd.read_csv('./news_articles.csv')
-    df.drop(columns=['uuid','ord_in_thread','crawled','thread_title','replies_count','participants_count','likes','comments','shares'], axis=1, inplace=True)
-#    print(df.columns)
-    df.text = df.title+df.text
-    df.drop(columns=["title"], axis = 1, inplace=True)
-    #print(df.isnull().sum())
-    stop_words = set(stopwords.words('english')) 
-
-    def LemmSentence(sentence):
-        lemma_words = []
-        wordnet_lemmatizer = WordNetLemmatizer()
-        word_tokens = word_tokenize(sentence) 
-        for word in word_tokens: 
-            if word not in stop_words: 
-                new_word = re.sub('[^a-zA-Z]', '',word)
-                new_word = new_word.lower()
-                new_word = wordnet_lemmatizer.lemmatize(new_word)
-                lemma_words.append(new_word)
-    #    print(type(" ".join(lemma_words)))
-        return " ".join(lemma_words)
-    def simplify(values):
-        if values == 0:
-            return 0
-        else:
-            return 1
-    def simpleFR(values):
-        if values == 'Fake':
-            return 1
-        else:
-            return 0
-    df = df.dropna()
-    X = df["text"]
-    #print(X.head(10))
-    y = df['spam_score']
-    y = [simplify(i) for i in y]
-
-    testData = testData.dropna()
-    X1 = testData["text"]
-    y1 = testData["label"]
-    y1 = [simpleFR(i) for i in y1]
-    try:
-        X1 = [LemmSentence(i) for i in X1]
-    except:
-        pass
-#    print(y[0:100])
-#    y = df["label"]
-    try:
-        X = [LemmSentence(i) for i in X]
-    except:
-        pass
-#    print(x[0:100])
-    X = pd.DataFrame(X)
-    y = pd.DataFrame(y)
-    X1 = pd.DataFrame(X1)
-    y1 = pd.DataFrame(y1)
-
-    #X = X.dropna()
-#    print(X.isnull().sum())
-#    print(y.isnull().sum())
-    x_train, x1_test, y_train, y1_test = train_test_split(X,y, test_size=0.1, random_state=7)
-    x1_train, x_test, y1_train , y_test = train_test_split(X1, y1, test_size=.99, random_state=7)
-    print(x_train.shape, x_test.shape, y_train.shape, y_test.shape)
-    # create the transform
-    vectorizer = TfidfVectorizer()
-
-    # transforming
-    tfidf_train = vectorizer.fit_transform(x_train.iloc[:,0])
-    tfidf_test = vectorizer.transform(x_test.iloc[:,0])
-    pac = PassiveAggressiveClassifier(random_state = 7,loss = 'squared_hinge',  max_iter = 50, C = 0.16)
-    pac.fit(tfidf_train, y_train.values.ravel())
-
-    #Predict on the test set and calculate accuracy
-    y_pred = pac.predict(tfidf_test)
-    score = accuracy_score(y_test, y_pred)
-
-    print(f'Accuracy: {round(score*100, 2)}%')
-    ax = sns.heatmap(confusion_matrix(y_test,y_pred), annot=True, fmt="d")
-    ax.set(xlabel='Prediction', ylabel='Actual')
-    plt.show()
-
-def plan4(state):
-    df=pd.read_csv('./fake.csv')
-#   testData = pd.read_csv('./news_articles.csv')
-    df.drop(columns=['uuid','ord_in_thread','crawled','thread_title','replies_count','participants_count','likes','comments','shares'], axis=1, inplace=True)
-#    print(df.columns)
-    df.text = df.title+df.text
-    df.drop(columns=["title"], axis = 1, inplace=True)
-    #print(df.isnull().sum())
-    stop_words = set(stopwords.words('english')) 
-
-    def LemmSentence(sentence):
-        lemma_words = []
-        wordnet_lemmatizer = WordNetLemmatizer()
-        word_tokens = word_tokenize(sentence) 
-        for word in word_tokens: 
-            if word not in stop_words: 
-                new_word = re.sub('[^a-zA-Z]', '',word)
-                new_word = new_word.lower()
-                new_word = wordnet_lemmatizer.lemmatize(new_word)
-                lemma_words.append(new_word)
-    #    print(type(" ".join(lemma_words)))
-        return " ".join(lemma_words)
-    def simplify(values):
-        if values == 0:
-            return 0
-        else:
-            return 1
-#    def simpleFR(values):
-#        if values == 'Fake':
-#            return 1
-#        else:
-#            return 0
-    df = df.dropna()
-    X = df["text"]
-    #print(X.head(10))
-    y = df['spam_score']
-    y = [simplify(i) for i in y]
-
-#    testData = testData.dropna()
-#    X1 = testData["text"]
-#    y1 = testData["label"]
-#    y1 = [simpleFR(i) for i in y1]
- #   try:
- #       X1 = [LemmSentence(i) for i in X1]
- #   except:
- #       pass
-#    print(y[0:100])
-#    y = df["label"]
-    try:
-        X = [LemmSentence(i) for i in X]
-    except:
-        pass
-#    print(x[0:100])
-    X = pd.DataFrame(X)
-    y = pd.DataFrame(y)
-#    X1 = pd.DataFrame(X1)S
-#    y1 = pd.DataFrame(y1)
-
-    #X = X.dropna()
-#    print(X.isnull().sum())
-#    print(y.isnull().sum())
-    x_train, x_test, y_train, y_test = train_test_split(X,y, test_size=0.5, random_state=state)
-#    x1_train, x_test, y1_train , y_test = train_test_split(X1, y1, test_size=.99, random_state=7)
-    print(x_train.shape, x_test.shape, y_train.shape, y_test.shape)
-    # create the transform
-    vectorizer = TfidfVectorizer()
-
-    # transforming
-    tfidf_train = vectorizer.fit_transform(x_train.iloc[:,0])
-    tfidf_test = vectorizer.transform(x_test.iloc[:,0])
-    pac = PassiveAggressiveClassifier(random_state = state,loss = 'squared_hinge',  max_iter = 25, C = 0.16)
-    pac.fit(tfidf_train, y_train.values.ravel())
-
-    #Predict on the test set and calculate accuracy
-    y_pred = pac.predict(tfidf_test)
-    score = accuracy_score(y_test, y_pred)
-
-    print(f'Accuracy: {round(score*100, 2)}%')
-    ax = sns.heatmap(confusion_matrix(y_test,y_pred), annot=True, fmt="d")
-    ax.set(xlabel='Prediction', ylabel='Actual')
-    plt.show()
-    
-#plan2()
+#    print(f'Accuracy: {round(score*100, 2)}%')
+#    ax = sns.heatmap(confusion_matrix(y_test,y_pred), annot=True, fmt="d")
+#    ax.set(xlabel='Prediction', ylabel='Actual')
+#    plt.show()
+ 
+text = "why did attorney general loretta lynch plead the fifth barracuda brigade  print the administration is blocking congressional probe into cash payments to iran of course she needs to plead the th she either cant recall refuses to answer or just plain deflects the question straight up corruption at its finest  percentfedupcom  talk about covering your ass loretta lynch did just that when she plead the fifth to avoid incriminating herself over payments to irancorrupt to the core attorney general loretta lynch is declining to comply with an investigation by leading members of congress about the obama administrations secret efforts to send iran  billion in cash earlier this year prompting accusations that lynch has pleaded the fifth amendment to avoid incriminating herself over these payments according to lawmakers and communications exclusively obtained by the washington free beacon  sen marco rubio r fla and rep mike pompeo r kan initially presented lynch in october with a series of questions about how the cash payment to iran was approved and delivered  in an oct  response assistant attorney general peter kadzik responded on lynchs behalf refusing to answer the questions and informing the lawmakers that they are barred from publicly disclosing any details about the cash payment which was bound up in a ransom deal aimed at freeing several american hostages from iran  the response from the attorney generals office is unacceptable and provides evidence that lynch has chosen to essentially plead the fifth and refuse to respond to inquiries regarding herrole in providing cash to the worlds foremost state sponsor of terrorism rubio and pompeo wrote on friday in a followup letter to lynch more related"   
+print(plan2(text))
