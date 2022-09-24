@@ -5,6 +5,7 @@ import { TextField, Box } from '@mui/material';
 function App() {
   const inputProps = {
     step: 300,
+    defaultInputValue: "",
   }
   
   const [data, setData] = useState({});
@@ -16,7 +17,10 @@ function App() {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({data: e.target.value})
           })
-          setData(await response.json().data)
+    const result = await response.json()
+          console.log(result)
+          setData(result)
+          
   }
 
   return (
