@@ -8,7 +8,7 @@ function App() {
     defaultInputValue: "",
   }
   
-  const [data, setData] = useState({});
+  const [data, setData] = useState('Empty');
 
   const handleTextInputChange = async e => {
     const response = await fetch(`http://127.0.0.1:8081/api/input`, {
@@ -19,7 +19,7 @@ function App() {
           })
     const result = await response.json()
           console.log(result)
-          setData(result)
+          setData(result.data)
           
   }
 
@@ -38,7 +38,7 @@ function App() {
       autoComplete="off"
     >
         <TextField id="input" label="Input" variant="outlined" color="primary" onChange={handleTextInputChange}/>
-        <TextField id="output" label="Output" variant="outlined" color="primary" inputProps={{...inputProps, value: data, readOnly:true}}/>
+        <TextField id="output" label="Output" variant="outlined" color="primary" inputProps={{...inputProps, value: data, readOnly:true}} onChange={handleTextInputChange} />
         </Box>
       </header>
     </div>

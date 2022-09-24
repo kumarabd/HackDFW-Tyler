@@ -7,6 +7,11 @@ from sklearn.linear_model import PassiveAggressiveClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
 
 import re
+import nltk
+nltk.download('stopwords')
+nltk.download('punkt')
+nltk.download('wordnet')
+nltk.download('omw-1.4')
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
@@ -67,5 +72,5 @@ def phase1(text):
     else:
         return "Fake"
  
-text = "why did attorney general loretta lynch plead the fifth barracuda brigade print the administration is blocking congressional probe into cash payments to iran of course she needs to plead the th she either cant recall refuses to answer or just plain deflects the question straight up corruption at its finest  percentfedupcom  talk about covering your ass loretta lynch did just that when she plead the fifth to avoid incriminating herself over payments to irancorrupt to the core attorney general loretta lynch is declining to comply with an investigation by leading members of congress about the obama administrations secret efforts to send iran  billion in cash earlier this year prompting accusations that lynch has pleaded the fifth amendment to avoid incriminating herself over these payments according to lawmakers and communications exclusively obtained by the washington free beacon  sen marco rubio r fla and rep mike pompeo r kan initially presented lynch in october with a series of questions about how the cash payment to iran was approved and delivered  in an oct  response assistant attorney general peter kadzik responded on lynchs behalf refusing to answer the questions and informing the lawmakers that they are barred from publicly disclosing any details about the cash payment which was bound up in a ransom deal aimed at freeing several american hostages from iran  the response from the attorney generals office is unacceptable and provides evidence that lynch has chosen to essentially plead the fifth and refuse to respond to inquiries regarding herrole in providing cash to the worlds foremost state sponsor of terrorism rubio and pompeo wrote on friday in a followup letter to lynch more related"   
-print(phase1(text))
+#text = "why did attorney general loretta lynch plead the fifth barracuda brigade print the administration is blocking congressional probe into cash payments to iran of course she needs to plead the th she either cant recall refuses to answer or just plain deflects the question straight up corruption at its finest  percentfedupcom  talk about covering your ass loretta lynch did just that when she plead the fifth to avoid incriminating herself over payments to irancorrupt to the core attorney general loretta lynch is declining to comply with an investigation by leading members of congress about the obama administrations secret efforts to send iran  billion in cash earlier this year prompting accusations that lynch has pleaded the fifth amendment to avoid incriminating herself over these payments according to lawmakers and communications exclusively obtained by the washington free beacon  sen marco rubio r fla and rep mike pompeo r kan initially presented lynch in october with a series of questions about how the cash payment to iran was approved and delivered  in an oct  response assistant attorney general peter kadzik responded on lynchs behalf refusing to answer the questions and informing the lawmakers that they are barred from publicly disclosing any details about the cash payment which was bound up in a ransom deal aimed at freeing several american hostages from iran  the response from the attorney generals office is unacceptable and provides evidence that lynch has chosen to essentially plead the fifth and refuse to respond to inquiries regarding herrole in providing cash to the worlds foremost state sponsor of terrorism rubio and pompeo wrote on friday in a followup letter to lynch more related"   
+#print(phase1(text))

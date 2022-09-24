@@ -14,3 +14,6 @@ def process_input():
     return {
         "data": phase1(result['data']),
     }
+
+if __name__ == "__main__":
+    app.run()
